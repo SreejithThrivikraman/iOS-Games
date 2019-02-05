@@ -17,9 +17,13 @@ class ViewController: UIViewController {
     
     var gameOver = false
     
+    @IBOutlet weak var winnerLabel: UILabel!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        winnerLabel.text = ""
     }
 
     override func didReceiveMemoryWarning() {
@@ -54,6 +58,18 @@ class ViewController: UIViewController {
                 gameOver = true
                 print("The winner is :\( board[iterator[0]])")
                 
+                if board[iterator[0]] == 1{
+                    winnerLabel.text = "The winner is X"
+                   // sender.userInteractionEnabled = false
+                    !sender.isEnabled
+                }
+                else if board[iterator[0]] == 2{
+                    winnerLabel.text = "The winner is O"
+                   // sender.isUserInteractionEnabled = false
+                    !sender.isEnabled
+                }
+
+                 
             }
             
         }

@@ -49,6 +49,13 @@ class ViewController: UIViewController {
         
         for iterator in winning_conditions{
             
+            if board[iterator[0]] != 0 && board[iterator[0]] == board[iterator[1]] && board[iterator[1]] == board[iterator[2]]{
+                
+                gameOver = true
+                print("The winner is :\( board[iterator[0]])")
+                
+            }
+            
         }
         print(board)
     }

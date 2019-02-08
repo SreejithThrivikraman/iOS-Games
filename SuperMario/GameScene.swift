@@ -47,8 +47,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         var mario_run: [SKTexture] = []
         for number in 1...5
         {
-            mario_run.append(SKTexture(imageNamed: <#T##String#>))
+            mario_run.append(SKTexture(imageNamed: "frame-\(number).png"))
         }
+        
+        mario?.run(SKAction.repeatForever(SKAction.animate(with: mario_run, timePerFrame: 0.2)))
         
         coinTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: {(timer) in self.createCoin()})
         

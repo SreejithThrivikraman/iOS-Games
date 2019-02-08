@@ -44,7 +44,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //        mario?.physicsBody?.contactTestBitMask = coinCategory
 //        mario?.physicsBody?.collisionBitMask = 8
         
-        
+        var mario_run: [SKTexture] = []
+        for number in 1...5
+        {
+            mario_run.append(SKTexture(imageNamed: <#T##String#>))
+        }
         
         coinTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: {(timer) in self.createCoin()})
         

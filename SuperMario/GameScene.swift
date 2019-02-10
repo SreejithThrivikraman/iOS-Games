@@ -16,20 +16,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     var coinTimer: Timer?
+    var bombTimer: Timer?
     var mario: SKSpriteNode?
     var scoreLabel: SKLabelNode?
+    var message: SKLabelNode?
     var score = 0
     
     // For Collision
     let marioCategory: UInt32 = 0x1 << 1
     let coinCategory: UInt32 = 0x1 << 2
-    let dummyCategory: UInt32 = 0x1 << 3
+    
+    let bulletCategory: UInt32 = 0x1 << 5
+    
     
     override func didMove(to view: SKView) {
         
         physicsWorld.contactDelegate = self
         
         scoreLabel = childNode(withName: "scoreLabel") as? SKLabelNode
+        message = childNode(withName: "message") as? SKLabelNode
         mario = childNode(withName: "mario") as? SKSpriteNode
         
         
@@ -39,6 +44,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         mario?.physicsBody?.categoryBitMask = marioCategory
         mario?.physicsBody?.contactTestBitMask = coinCategory
+        mario?.physicsBody?.contactTestBitMask = bulletCategory
         
 //        mario?.physicsBody?.categoryBitMask = 1
 //        mario?.physicsBody?.contactTestBitMask = coinCategory
@@ -50,9 +56,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             mario_run.append(SKTexture(imageNamed: "frame-\(number).png"))
         }
         
+       
+        
+        
         mario?.run(SKAction.repeatForever(SKAction.animate(with: mario_run, timePerFrame: 0.2)))
         
         coinTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: {(timer) in self.createCoin()})
+        bombTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true, block: {(timer) in self.createBomb()})
+        
+        
         
        
     }
@@ -60,11 +72,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
   
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?)
+    {
     
-        // I will need this function
-        
-        
         mario?.physicsBody?.applyForce(CGVector(dx:0, dy:50000))
      }
     
@@ -99,6 +109,49 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     }
     
+    
+    func createBomb()
+    {
+        let bomb = SKSpriteNode(imageNamed: "Bird1")
+        
+        
+        bomb.size = CGSize(width: 100, height: 100)
+        
+        let xx = size.width/2 - bomb.size.width
+        
+        let maxY = size.height / 2 - bomb.size.height / 2
+        let minY = -size.height / 2 + bomb.size.height / 2
+        let range = maxY - minY
+        let coinY = maxY - CGFloat(arc4random_uniform(UInt32(range)))
+        
+        bomb.position = CGPoint(x: xx , y: coinY)
+        bomb.physicsBody = SKPhysicsBody(rectangleOf: bomb.size)
+        bomb.physicsBody?.affectedByGravity = false
+        
+        //For collision
+        bomb.physicsBody?.categoryBitMask = bulletCategory
+        bomb.physicsBody?.collisionBitMask = 0
+        bomb.physicsBody?.contactTestBitMask = marioCategory
+        
+        
+        
+        addChild(bomb)
+        
+        let moveLeft = SKAction.moveBy(x: -size.width, y: 0, duration: 4)
+        let sequence = SKAction.sequence([moveLeft, SKAction.removeFromParent()])
+        bomb.run(sequence)
+        
+        var bomb_run: [SKTexture] = []
+        for bomb_number in 1...2
+        {
+            bomb_run.append(SKTexture(imageNamed: "Bird\(bomb_number).png"))
+        }
+        
+        bomb.run(SKAction.repeatForever(SKAction.animate(with: bomb_run, timePerFrame: 0.2)))
+        
+        
+    }
+    
     func didBegin(_ contact: SKPhysicsContact) {
         
         print("Contact!!!")
@@ -109,12 +162,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             scoreLabel?.text = "Score: \(score)"
 
         }
-        if contact.bodyB.categoryBitMask == coinCategory {
+        if contact.bodyB.categoryBitMask == coinCategory
+        {
             contact.bodyB.node?.removeFromParent()
             score += 1
             scoreLabel?.text = "Score: \(score)"
 
         }
+
+        
+        if contact.bodyB.categoryBitMask == bulletCategory
+            {
+                message?.text = "Game Over !!"
+                coinTimer?.invalidate()
+                bombTimer?.invalidate()
+                
+                mario?.removeFromParent()
+               
+
+            }
         
        
         
